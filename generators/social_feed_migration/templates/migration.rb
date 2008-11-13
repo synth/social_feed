@@ -10,6 +10,7 @@ class AddSocialFeed < ActiveRecord::Migration
       t.column :created_at, :datetime
       t.column :source_id, :integer
       t.column :source_type, :string
+      t.column :hint_body, :text
     end
   end
 

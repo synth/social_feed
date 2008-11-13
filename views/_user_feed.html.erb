@@ -1,6 +1,12 @@
 <div id="user_feed">
   <%- user_feed.each do |event| -%>
-	  <%= render :partial => feed_event_partial_name(event), :locals => {:event => event} %>
+    <%- if event.hint_body? -%>
+      <%= event.hint_body %>
+    <%- else -%>
+	    <%= hint = render :partial => feed_event_partial_name(event), :locals => {:event => event} 
+	        event.update_attribute :hint_body, hint
+          hint
+	    %>
+	  <%- end -%>
 	<% end %>
 </div>
-
