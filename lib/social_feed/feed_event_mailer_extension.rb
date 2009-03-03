@@ -2,7 +2,7 @@ module SocialFeed
   module FeedEventMailerExtension
     
     private
-    def  create_event_message(subject, event) 
+    def asdcreate_event_message(subject, event) 
       @subject    = subject
       @body       = {:event => event}
       @recipients = event.user.email
