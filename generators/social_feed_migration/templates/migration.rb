@@ -7,11 +7,13 @@ class AddSocialFeed < ActiveRecord::Migration
     create_table :feed_events do |t|
       t.column :type, :string
       t.column :user_id, :integer
-      t.column :created_at, :datetime
       t.column :source_id, :integer
       t.column :source_type, :string
       t.column :hint_body, :text
       t.column :details, :text
+      t.column :summarized_by, :integer
+      t.column :summary_count, :integer
+      t.timestamps
     end
     
   end

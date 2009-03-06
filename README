@@ -86,13 +86,31 @@ If you want to render the feed within another controller:
 An example query to get @feed_events might be:
   current_user.feed_events.find :all, :limit => 20, :order => 'created_at DESC'
 
+Summary Events
+==============
+On event classes that you would like to have summary events, or events that group other events, you can include the FeedEventSummary mixin.
+
+Historical Feeds
+================
+In order to have historical feeds, eg, if you subscribe to an event that has been around a while and want to have that appear in your feed, 
+there needs to be a central user who has every kind of feed, or rather all the ones you want to maintain a history for.
+
+When subscription takes place, the last 10 or 20 items(configurable) of this type are copied 
+over from the system user's feed to that user's feed.  This will also serve the dual purpose of a master log of all activity on the system.
+
+The reason why I copy the feed items is because the alternative, as I see it, would be to maintain normalize the db and maintain a join table 
+of users habtm events.  This way its very easy for a user to remove events from their feed. 
+
+
+In order to do this, just create a new user in the system, subscribe them to all the events, and edit social_feed.yml to include system_feed_id
 
 Configuration
 =============
 
 You can setup the from address used by the FeedEventMailers create_event_message method in the social_feed.yml in your config folder.
 You can turn caching of the hints on/off at the environment level by setting SocialFeed::Conf.cache_hints = false
-
+You can turn on historical feeds(see above) by setting a system_feed_id which is the id of the User instance that is subscribed to all the feeds you want to 
+maintain a history for.  Also specify, historical_feed_count to limit the copying of the feed to a certain number of events.
 
 Example Usage: Feed for updates on the User model
 ==============

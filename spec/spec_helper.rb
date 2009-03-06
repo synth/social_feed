@@ -1,8 +1,16 @@
 PLUGIN_ROOT = File.dirname(__FILE__) + '/..'
 
-require 'rubygems'
 gem 'activerecord'
 require 'activerecord'
+
+require 'ruby-debug'
+module Rails
+  module Kernel
+    def debugger
+      Debugger.debugger
+    end
+  end
+end
 
 __DIR__ = File.dirname __FILE__
 
@@ -14,7 +22,8 @@ ActiveRecord::Base.establish_connection :adapter => 'sqlite3', :database => File
 class CreateUsers < ActiveRecord::Migration
   def self.up
     create_table :users do |t|
-        
+        t.string :name
+        t.timestamps
     end
   end
 end
@@ -31,7 +40,8 @@ AddSocialFeed.up
 
 require PLUGIN_ROOT + '/lib/object_extensions'
 
-
+require 'ostruct'
+SocialFeed::Conf = OpenStruct.new
 # rspec rails stuff
 
 module Spec
@@ -82,5 +92,35 @@ module ActiveRecord #:nodoc:
     end
     alias :error_on :errors_on
 
+  end
+end
+
+module StashedChangeMatchers
+  class HaveChanges
+    def initialize(expected)
+      @expected = expected
+    end
+    def matches?(target)
+      @target = target.stashed_changes
+      res = true
+      return false unless @target.keys == @expected.keys
+      @target.each do |k,v|
+        res = (@expected[k] == v)
+        break unless res
+      end
+      res
+    end
+    def failure_message
+      "expected #{@target.inspect} to be #{@expected}"
+    end
+    def negative_failure_message
+      "expected #{@target.inspect} not to be #{@expected}"
+    end    
+  end
+  def have_changes(expected)
+    HaveChanges.new(expected)
+  end
+  def have_no_changes()
+    HaveChanges.new({})
   end
 end

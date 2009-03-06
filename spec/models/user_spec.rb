@@ -1,4 +1,5 @@
 require File.dirname(__FILE__) + '/../spec_helper'
+require PLUGIN_ROOT + '/lib/feed_event'
 
 describe User, 'enable feed events' do
   
@@ -50,6 +51,7 @@ end
 
 describe User, 'subscribe to feed events' do
   class TestEvent; end
+  class TestFeedEvent < FeedEvent; end
   before(:each) do
     @user = User.new
   end
@@ -92,6 +94,23 @@ describe User, 'subscribe to feed events' do
     @user.save!
     @user.unsubscribe_from_feed_event TestEvent
     @user.should be_feed_event_subscriptions_changed
+  end
+  
+  it "should copy over historical feed events when subscribing to feed after events have been created" do 
+    @user.save
+
+    SocialFeed::Conf.historical_feed_count = 50
+    SocialFeed::Conf.system_feed_id = @user.id
+    
+    @user.subscribe_to_feed_event TestFeedEvent
+    50.times do 
+      TestFeedEvent.create :user => @user, :source => @user
+    end
+    @user.should have(50).feed_events
+    
+    @new_user = User.create
+    @new_user.subscribe_to_feed_event TestFeedEvent
+    @new_user.should have(SocialFeed::Conf.historical_feed_count).feed_events
   end
   
 end

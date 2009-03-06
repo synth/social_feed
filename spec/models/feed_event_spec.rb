@@ -1,5 +1,7 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 require PLUGIN_ROOT + '/lib/feed_event'
+#require 'ruby-debug'
+#Debugger.start
 
 describe FeedEvent, 'send emails' do
   class TestFeedEvent < FeedEvent; end
@@ -199,4 +201,23 @@ describe FeedEvent, 'check subscription before sending emails' do
     FeedEventMailer.should_receive(:send).with('deliver_test_feed', anything)
     TestFeedEvent.create :user => @user
   end
+  
+end
+
+describe FeedEvent, 'Check following a specific feed event' do
+  include StashedChangeMatchers
+  
+  class TestFollowingFeedEvent < FeedEvent
+    subscribe_description 'desc'    
+    follows :user
+  end
+  
+  it "should stash changes on the followed model" do 
+    u = User.create
+    u.should have_no_changes
+    u.name = "new name"
+    u.save
+    u.should have_changes("name" =>[nil, "new name"])
+  end
+
 end

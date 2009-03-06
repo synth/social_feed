@@ -16,6 +16,9 @@ module SocialFeed
     def subscribe_to_feed_event(event_class) 
       self.feed_event_subscriptions ||= []
       self.feed_event_subscriptions |= [event_class.to_s]
+      if(u = User.find(:first, :conditions => {:id => SocialFeed::Conf.system_feed_id}))
+        self.copy_historical_feed_events(u, event_class)
+      end
     end
     
     def subscribed_to_feed_event?(event_class)
@@ -55,5 +58,12 @@ module SocialFeed
       self.enabled_feed_events.if_not_nil?{|e| e.include? event_class.to_s}
     end
     
+    def copy_historical_feed_events(user, event_class)
+      event_class = event_class.kind_of?(Class) ? event_class : event_class.constantize
+      events = user.feed_events.find :all, :conditions=>{:type => event_class.to_s}, :limit => SocialFeed::Conf.historical_feed_count
+      events.each do |e|
+        e = event_class.create :user => self, :source => e.source, :details => e.details, :forbid_email => true
+      end
+    end
   end
 end

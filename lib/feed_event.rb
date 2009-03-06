@@ -14,6 +14,40 @@ class FeedEvent < ActiveRecord::Base
 
   serialize :details
   
+  #allow creaters of events to dynamically suppress emails even if there are email subscribers
+  #and/or all other conditions are met
+  attr_accessor :forbid_email
+  
+  #This method allows you to specify a class to follow the changes
+  #It stashes the changes in a before filter and you can optionally
+  #specify an after filter on the followed class as well.
+  #
+  #The idea is that this logic isn't core to the source class and you
+  #may want to have lots of logic for displaying the feed depending
+  #on what has changed
+  #
+  #This is certainly clunky, but until a better way comes around.  I 
+  #considered using observers but it seemed a whole lot heavier for not
+  #that much gain.  The event classes are fairly empty and seem like an
+  #appropriate place to put logic concerning...umm...the event.
+  def self.follows(klass, opts={})
+    klass = klass.to_s.capitalize.constantize
+    event = self
+    klass.class_eval{
+      attr_accessor :stashed_changes
+      @@followed_by = event
+      before_save {|record| record.stashed_changes = record.changes}
+      #I thought there might be a use for this, but not sure now...
+      # after_save {|record| @@followed_by.send(opts[:with], record)} if opts[:with]
+    }
+  end
+  
+  def self.notify_subscribers(opts)
+    User.find(:all).each do |u|
+      UserUpdateEvent.create opts.merge(:user => u)
+    end
+  end
+  
   def allowed_to_destroy?(_user_id)
     (user_id == _user_id)
   end
@@ -60,9 +94,10 @@ class FeedEvent < ActiveRecord::Base
   def source_disabled_event?
     self.class.user_can_enable_event? && source.respond_to?(:user) && source.user && !source.user.feed_event_enabled?(self.class)
   end
+
   def send_email
     FeedEventMailer.send "deliver_#{self.class.name.underscore[0..-7]}", self if self.class.can_send_email? && 
-      (user.subscribed_to_email?(self.class) || self.class.user_cannot_subscribe_to_event?) && !user.try(:online?) && !source_disabled_event?
+      (user.subscribed_to_email?(self.class) || self.class.user_cannot_subscribe_to_event?) && !user.try(:online?) && !source_disabled_event? && !self.forbid_email
   end
   
   def self.load_subclasses
