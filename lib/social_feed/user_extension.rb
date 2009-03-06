@@ -28,6 +28,7 @@ module SocialFeed
     def unsubscribe_from_feed_event(event_class)
       self.feed_event_subscriptions_will_change!
       self.feed_event_subscriptions.delete event_class.to_s
+      FeedEvent.delete_all :user_id => self.id, :type => event_class.to_s
     end
     
     def subscribe_to_email(event_class) 
@@ -62,7 +63,7 @@ module SocialFeed
       event_class = event_class.kind_of?(Class) ? event_class : event_class.constantize
       events = user.feed_events.find :all, :conditions=>{:type => event_class.to_s}, :limit => SocialFeed::Conf.historical_feed_count
       events.each do |e|
-        e = event_class.create :user => self, :source => e.source, :details => e.details, :forbid_email => true
+        e = event_class.create :user => self, :source => e.source, :details => e.details, :forbid_email => true, :created_at => e.created_at, :updated_at => e.updated_at
       end
     end
   end

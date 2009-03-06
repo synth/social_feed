@@ -52,6 +52,8 @@ end
 describe User, 'subscribe to feed events' do
   class TestEvent; end
   class TestFeedEvent < FeedEvent; end
+  class AnotherTestFeedEvent < FeedEvent; end
+  
   before(:each) do
     @user = User.new
   end
@@ -71,6 +73,49 @@ describe User, 'subscribe to feed events' do
     @user.feed_event_subscriptions = ['TestEvent']
     @user.unsubscribe_from_feed_event TestEvent
     @user.feed_event_subscriptions.should be_empty 
+  end
+
+  it "should delete events upon unsubscription" do 
+    @user.save
+    @user.feed_event_subscriptions = ['TestFeedEvent']
+    @user.feed_events.should be_empty
+    u = TestFeedEvent.create :user => @user, :source => @user
+    @user.feed_events.reload
+    @user.should have(1).feed_events
+
+    @user.unsubscribe_from_feed_event TestFeedEvent
+    @user.feed_events.reload
+    @user.feed_events.should be_empty
+    
+  end
+  
+  it "should not delete someone else's events upon unsubscription" do
+    @user.save
+    @new_user = User.create
+
+    @user.feed_event_subscriptions = ['TestFeedEvent']
+    @new_user.feed_event_subscriptions  = ['TestFeedEvent']
+    TestFeedEvent.create :user => @user, :source => @user
+    TestFeedEvent.create :user => @new_user, :source => @new_user
+    
+    @user.unsubscribe_from_feed_event TestFeedEvent
+    @new_user.feed_events.reload.should have(1).feed_events
+  end
+  
+  it "should not delete other subscriptions upon one particular unsubscription" do
+    @user.save
+    @user.feed_event_subscriptions = ['TestFeedEvent', 'AnotherTestFeedEvent']
+    
+    TestFeedEvent.create :user => @user, :source => @user
+    AnotherTestFeedEvent.create :user => @user, :source => @user
+    
+    @user.should have(2).feed_events
+    
+    @user.unsubscribe_from_feed_event TestFeedEvent
+    
+    @user.feed_events.reload
+    @user.should have(1).feed_events
+    
   end
   
   it "should return true if user is subscribed" do
