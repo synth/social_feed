@@ -11,7 +11,9 @@ class AddSocialFeed < ActiveRecord::Migration
       t.column :source_id, :integer
       t.column :source_type, :string
       t.column :hint_body, :text
+      t.column :details, :text
     end
+    
   end
 
   def self.down

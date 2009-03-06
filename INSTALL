@@ -11,7 +11,7 @@ map.from_plugin 'social_feed'
 
 * add the following line to the Rails::Initializer block in your environment.rb
 
-config.load_paths << RAILS_ROOT + '/app/models/events'
+config.load_paths << RAILS_ROOT + '/app/models/feed_events'
 
 * add the following line to your User class
 

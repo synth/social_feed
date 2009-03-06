@@ -1,6 +1,6 @@
 <div id="user_feed">
   <%- user_feed.each do |event| -%>
-    <%- if event.hint_body? -%>
+    <%- if event.hint_body? and SocialFeed::Conf.cache_hints-%>
       <%= event.hint_body %>
     <%- else -%>
 	    <%= hint = render :partial => feed_event_partial_name(event), :locals => {:event => event} 

@@ -10,7 +10,7 @@ RAILS_ROOT = __DIR__ + '/../../..'
 # done by user
 
 # create events directory
-FileUtils.mkdir RAILS_ROOT + '/app/models/events'
+FileUtils.mkdir RAILS_ROOT + '/app/models/feed_events'
 
 # copy mailer template
 FileUtils.cp __DIR__ + '/lib/feed_event_mailer.rb.template', RAILS_ROOT + '/app/models/feed_event_mailer.rb' 

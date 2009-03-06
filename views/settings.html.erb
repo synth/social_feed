@@ -15,6 +15,8 @@
 				<%- if clazz.can_send_email? -%>
 					<%= check_box_tag clazz.name + '_mail', '1', current_user.subscribed_to_email?(clazz) %>
 					<%= observe_field clazz.name + '_mail', :url => toggle_email_subscription_feed_events_path(:event => clazz.name), :success => "new Effect.Highlight('#{clazz.name + '_row'}')" %>
+				<%- else %>
+					<%= check_box_tag '', '', false, :disabled => true%>
 				<%- end -%>
 			</td>
 			<td class="blue_font"><%= clazz.subscribe_description %></td>
@@ -22,9 +24,12 @@
 	<%- end -%>
 </table>
 
+<% feed_types = FeedEvent.enabable_feed_event_types %>
+<% if(feed_types.length > 0) %>
 <h2>Privacy Settings</h2>
+<% end %>
 <table>
-	<%- FeedEvent.enabable_feed_event_types.each do |clazz| -%>
+	<%- feed_types.each do |clazz| -%>
 		<tr id="<%= "#{clazz.name + '_privacy_row'}" %>">
 			<td>
 				<%= check_box_tag clazz.name + '_privacy', '1', current_user.feed_event_enabled?(clazz) %>

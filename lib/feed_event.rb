@@ -12,6 +12,8 @@ class FeedEvent < ActiveRecord::Base
   
   belongs_to :user
 
+  serialize :details
+  
   def allowed_to_destroy?(_user_id)
     (user_id == _user_id)
   end
@@ -64,7 +66,7 @@ class FeedEvent < ActiveRecord::Base
   end
   
   def self.load_subclasses
-    Dir[RAILS_ROOT+'/app/models/events/*_event.rb'].each do |file|
+    Dir[RAILS_ROOT+'/app/models/feed_events/*_event.rb'].each do |file|
       @@event_types << File.basename(file, '.rb').camelize.constantize
     end
   end
