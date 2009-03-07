@@ -9,6 +9,8 @@ module SocialFeed
         
         has_many :feed_events, :dependent => :destroy, :order => "id DESC"
         has_many :feed_events_as_source, :dependent => :destroy, :as => :source, :class_name => 'FeedEvent'
+        has_many :summarized_feed_events, :class_name =>"FeedEvent", :dependent => :destroy, :conditions => "summarized_by_id IS NULL"
+
       end
       
     end

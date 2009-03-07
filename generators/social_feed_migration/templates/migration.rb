@@ -11,7 +11,7 @@ class AddSocialFeed < ActiveRecord::Migration
       t.column :source_type, :string
       t.column :hint_body, :text
       t.column :details, :text
-      t.column :summarized_by, :integer
+      t.column :summarized_by_id, :integer
       t.column :summary_count, :integer
       t.timestamps
     end
