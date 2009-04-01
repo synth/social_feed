@@ -10,7 +10,7 @@ class FeedEventGenerator < Rails::Generator::Base
   
   def manifest
     record do |r|
-      r.template 'event_model.rb.erb', "app/models/events/#{event_name.underscore}_event.rb"
+      r.template 'event_model.rb.erb', "app/models/feed_events/#{event_name.underscore}_event.rb"
       r.template 'event_hint.html.erb', "app/views/feed_events/_#{event_name.underscore}_hint.html.erb"
       # email template and mailer method
     end
