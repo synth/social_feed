@@ -55,11 +55,11 @@ To create a custom event you should use the built-in feed_event generator:
 
 e.g.: script/generate feed_event new_friend
 
-This creates a new class NewFriendEvent in the app/models/events directory (the class representing the event) as well as a new_friend_hint.html.erb file in the app/views/feed_events directory (this gets rendered on people's social feed page). First thing you probably want to do is to customize the hint file.
+This creates a new class NewFriendEvent in the app/models/feed_events directory (the class representing the event) as well as a new_friend_hint.html.erb file in the app/views/feed_events directory (this gets rendered on people's social feed page). First thing you probably want to do is to customize the hint file.
 
 Secondly you should also customize the two description lines in the model, which will be used on the setting page. By commenting out either line, you can remove the corresponding line from the setings page.
 
-If you want your users to be able to receive emails for your new event, add a method deliver_new_friend(event) to the FeedEventMailer found in app/models/feed_events. You can call the convenience method create_event_message(subject, event) to send your mails. After adding the method a checkbox for this event will automatically appear on the settings page.  You will also need to add a mailer template in app/views/feed_event_mailer/deliver_new_friend.html.erb and will have access to @event for the event information.
+If you want your users to be able to receive emails for your new event, add a method new_friend(event) to the FeedEventMailer found in app/models/. You can call the convenience method create_event_message(subject, event) to send your mails. After adding the method a checkbox for this event will automatically appear on the settings page.  You will also need to add a mailer template in app/views/feed_event_mailer/deliver_new_friend.html.erb and will have access to @event for the event information.
 
 Creating actual events
 ======================
