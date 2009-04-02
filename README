@@ -61,6 +61,11 @@ Secondly you should also customize the two description lines in the model, which
 
 If you want your users to be able to receive emails for your new event, add a method new_friend(event) to the FeedEventMailer found in app/models/. You can call the convenience method create_event_message(subject, event) to send your mails. After adding the method a checkbox for this event will automatically appear on the settings page.  You will also need to add a mailer template in app/views/feed_event_mailer/deliver_new_friend.html.erb and will have access to @event for the event information.
 
+Ex.(in feed_event_mailer.rb)
+  def new_friend_event(event)
+    create_event_message("Put the subject here", event)
+  end 
+
 Creating actual events
 ======================
 
@@ -116,6 +121,7 @@ Example Usage: Feed for updates on the User model
 ==============
 I stash the changes on my model before the model is updated, so that the feed(created after the save) will know exactly what was changed(Here, I'm avoiding counting changes to the subscription as a change)
 
+  attr_accessor :stashed_changed
   before_update :stash_changes
   after_update :update_feed, :unless => Proc.new{|u| u.stashed_changes.reject{|k,v| k == "feed_event_subscriptions"}.empty?}
 
@@ -139,8 +145,13 @@ Gotchas
 For all models of you application you use as a source for a FeedEvent, add a
 :has_many :feed_events, :dependent => :destroy
 so that the feed events are destroyed when objects are destroyed. Otherwise the social feeds of you users will get into trouble with sources of events missing.
-
-
+I have hierarchical feed events, so I have situations like:
+  class ProjectFeedEvent < FeedEvent; end
+  class ProjectAddedEvent < ProjectFeedEvent; end
+There is a quirk in rails, that when using STI with more than one level of inheritance and cache_classes=false, the subclasses are not reloaded properly and thus ProjectFeedEvent.find(:all) doesn't properly include the subclasses in the find after multiple(>= 2) web requests.  The workaround is to explicitly name subclasses:
+  class ProjectFeedEvent < FeedEvent
+    def subclasses;[ProjectAddedEvent];end
+  end
 
 Contact
 =======
