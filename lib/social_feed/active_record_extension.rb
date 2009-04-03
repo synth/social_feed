@@ -71,13 +71,16 @@ module SocialFeed
       end
       
       def wrap_for_delete(event_klass)
+        
         class_inheritable_accessor :deleted_event
         self.deleted_event = event_klass
-        before_destroy :update_feed_from_deletion
+        after_destroy :update_feed_from_deletion
         class_eval{
+
           def update_feed_from_deletion
             User.find(:all).each do |u|
-              self.class.deleted_event.create :user => u, :source => self
+              #stash the attributes for later use
+              self.class.deleted_event.create :user => u, :source => self, :details => self.attributes
             end
           end          
         }
